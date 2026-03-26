@@ -1,6 +1,18 @@
+# secrets
+.env
+.env.*
+config.py
+
+# python
 venv/
 __pycache__/
-*.log
-*.json
-.env
+
+# outputs
+output/
 *.mp4
+*.log
+upload_log.txt
+
+# temp files
+*.save*
+t
