@@ -1,0 +1,107 @@
+import requests
+from groq import Groq
+import random
+import json
+import sys
+sys.path.append('/home/ubuntu/ytbot')
+from config import GROQ_API_KEY
+
+def get_trending_topics():
+    print("🌐 Searching Reddit for trending psychology topics...")
+    try:
+        headers = {"User-Agent": "YTBot/1.0"}
+        subreddits = ["psychology", "darkpsychology", "manipulation", "narcissisticabuse"]
+        posts = []
+        for sub in subreddits:
+            url = f"https://www.reddit.com/r/{sub}/hot.json?limit=10"
+            response = requests.get(url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                for post in data["data"]["children"]:
+                    title = post["data"]["title"]
+                    if len(title) > 20:
+                        posts.append(title)
+        if posts:
+            topic = random.choice(posts)
+            print(f"✅ Found topic: {topic}")
+            return topic
+    except Exception as e:
+        print(f"⚠️ Reddit search failed: {e}")
+
+    fallbacks = [
+        "How narcissists manipulate their victims",
+        "The dark side of human psychology",
+        "Why people stay in toxic relationships",
+        "How cults control your mind",
+        "The psychology of manipulation",
+        "Why kind people get taken advantage of",
+        "The psychology behind toxic relationships",
+        "How abusers choose their victims",
+        "The dark truth about human behavior",
+        "Why people become narcissists"
+    ]
+    topic = random.choice(fallbacks)
+    print(f"✅ Using fallback topic: {topic}")
+    return topic
+
+def generate_script(topic):
+    print("🤖 Generating AI script with Groq...")
+    client = Groq(api_key=GROQ_API_KEY)
+
+    prompt = f"""You are a viral YouTube Shorts script writer specializing in dark psychology content.
+
+Write a 45-60 second script about this topic: "{topic}"
+
+Requirements:
+- Start with a shocking hook that grabs attention in first 2 seconds
+- Use simple conversational language
+- Include 3-5 surprising psychological facts
+- End with a call to follow for more
+- NO punctuation marks like apostrophes commas colons or periods (they break the video system)
+- Keep sentences short and punchy
+- Make it sound like you are speaking directly to the viewer
+
+Return ONLY this JSON format with no other text and no markdown:
+{{
+    "title": "YouTube title under 60 chars",
+    "hook": "The opening shocking sentence",
+    "script": "The complete script without any punctuation marks"
+}}"""
+
+    message = client.chat.completions.create(
+        model="llama3-70b-8192",
+        max_tokens=1000,
+        messages=[{"role": "user", "content": prompt}]
+    )
+
+    response_text = message.choices[0].message.content.strip()
+
+    # Clean up response if needed
+    if "```" in response_text:
+        parts = response_text.split("```")
+        for part in parts:
+            if "{" in part:
+                response_text = part
+                if response_text.startswith("json"):
+                    response_text = response_text[4:]
+                break
+
+
+def get_script():
+    topic = get_trending_topics()
+    return generate_script(topic)
+```
+
+**Ctrl+X → Y → Enter** to save.
+
+Then also update config.py to add your Groq key:
+```
+nano /home/ubuntu/ytbot/config.py
+```
+
+Add this line with your key:
+```
+GROQ_API_KEY = "your_key_here"
+```
+
+And remove the ANTHROPIC line → **Ctrl+X 
