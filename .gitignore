@@ -15,4 +15,8 @@ upload_log.txt
 
 # temp files
 *.save*
+
+# youtube secrets
+channels/*/token.json
+channels/*/client_secrets.json
 t
