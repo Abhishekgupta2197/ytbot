@@ -24,3 +24,7 @@ channels/*/token.json
 channels/*/client_secrets.json
 .env
 config.py
+channels/*/token.json
+channels/*/client_secrets.json
+.env
+config.py
